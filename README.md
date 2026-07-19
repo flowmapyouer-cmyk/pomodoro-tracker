@@ -1,4 +1,4 @@
-# 해빗 뽀모도로
+# 햅삣 뽀모도로
 
 앱인토스 제출을 목표로 만든 습관 트래커 + 뽀모도로 타이머. React + Vite + TypeScript + Tailwind CSS.
 
