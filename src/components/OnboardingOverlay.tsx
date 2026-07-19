@@ -69,7 +69,7 @@ export default function OnboardingOverlay({ targetEl, message, advance, onAdvanc
   bubbleTop = Math.min(Math.max(bubbleTop, 12), Math.max(12, vh - EST_BUBBLE_HEIGHT - 12))
 
   return (
-    <div className="fixed inset-0 z-[100]" aria-live="polite">
+    <div className="fixed inset-0 z-[100] pointer-events-none" aria-live="polite">
       {/* 시각적 스포트라이트(구멍) — 클릭은 전부 실제 화면으로 통과시킴 */}
       <div
         className="absolute rounded-2xl pointer-events-none transition-all duration-200"
@@ -89,7 +89,7 @@ export default function OnboardingOverlay({ targetEl, message, advance, onAdvanc
         <button
           aria-label="다음으로"
           onClick={onAdvance}
-          className="absolute inset-0 w-full h-full cursor-pointer"
+          className="absolute inset-0 w-full h-full cursor-pointer pointer-events-auto"
         />
       )}
       {/* advance === 'target'일 땐 클릭을 막는 레이어를 아예 두지 않는다.
