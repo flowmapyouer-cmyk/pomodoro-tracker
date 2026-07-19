@@ -1,30 +1,38 @@
-import { useState } from 'react'
-import type { Priority, Todo } from '../types'
+import type { Priority } from '../types'
 import TimePicker from './TimePicker'
 import PriorityPicker from './PriorityPicker'
 
-type NewTodoData = Omit<Todo, 'id' | 'isCompleted' | 'pauseCount' | 'createdAt' | 'completedAt'>
-
 interface Props {
-  onStart: (data: NewTodoData) => void
+  title: string
+  onTitleChange: (v: string) => void
+  date: string
+  onDateChange: (v: string) => void
+  durationMinutes: number
+  onDurationChange: (v: number) => void
+  priority: Priority
+  onPriorityChange: (v: Priority) => void
+  onStart: () => void
+  registerTarget?: (key: string) => (el: HTMLElement | null) => void
 }
 
-export default function RegisterScreen({ onStart }: Props) {
-  const today = new Date().toISOString().split('T')[0]
-
-  const [title, setTitle] = useState('')
-  const [date, setDate] = useState(today)
-  const [durationMinutes, setDurationMinutes] = useState(30)
-  const [priority, setPriority] = useState<Priority>('normal')
+export default function RegisterScreen({
+  title,
+  onTitleChange,
+  date,
+  onDateChange,
+  durationMinutes,
+  onDurationChange,
+  priority,
+  onPriorityChange,
+  onStart,
+  registerTarget,
+}: Props) {
+  const ref = (key: string) => registerTarget?.(key)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) return
-    onStart({ title: title.trim(), date, durationMinutes, priority })
-    setTitle('')
-    setDate(today)
-    setDurationMinutes(30)
-    setPriority('normal')
+    onStart()
   }
 
   return (
@@ -32,9 +40,10 @@ export default function RegisterScreen({ onStart }: Props) {
       <h2 className="text-base font-semibold text-gray-800 mb-4">새 일정 추가</h2>
 
       <input
+        ref={ref('titleInput')}
         type="text"
         value={title}
-        onChange={e => setTitle(e.target.value)}
+        onChange={e => onTitleChange(e.target.value)}
         placeholder="일정 이름을 입력하세요"
         required
         className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700
@@ -42,9 +51,10 @@ export default function RegisterScreen({ onStart }: Props) {
       />
 
       <input
+        ref={ref('dateInput')}
         type="date"
         value={date}
-        onChange={e => setDate(e.target.value)}
+        onChange={e => onDateChange(e.target.value)}
         required
         className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700
                    focus:outline-none focus:ring-2 focus:ring-blue-100 mb-4"
@@ -53,18 +63,19 @@ export default function RegisterScreen({ onStart }: Props) {
       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
         집중 시간 (최소 10분)
       </p>
-      <div className="mb-4">
-        <TimePicker totalMinutes={durationMinutes} onChange={setDurationMinutes} />
+      <div ref={ref('durationPicker')} className="mb-4">
+        <TimePicker totalMinutes={durationMinutes} onChange={onDurationChange} />
       </div>
 
       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
         우선순위
       </p>
-      <div className="mb-5">
-        <PriorityPicker value={priority} onChange={setPriority} />
+      <div ref={ref('priorityPicker')} className="mb-5">
+        <PriorityPicker value={priority} onChange={onPriorityChange} />
       </div>
 
       <button
+        ref={ref('startButton')}
         type="submit"
         className="w-full bg-gray-900 text-white py-2.5 rounded-xl text-sm font-medium
                    hover:bg-gray-700 active:bg-gray-800 transition-colors"

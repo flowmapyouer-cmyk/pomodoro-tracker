@@ -5,11 +5,20 @@ import { PRIORITY_META } from '../types'
 interface Props {
   todos: Todo[]
   onDelete: (id: string) => void
+  registerTarget?: (key: string) => (el: HTMLElement | null) => void
+  onboardingTargetId?: string | null
+  onItemOpen?: (id: string) => void
 }
 
 type SortOrder = 'latest' | 'oldest'
 
-export default function CompletedScreen({ todos, onDelete }: Props) {
+export default function CompletedScreen({
+  todos,
+  onDelete,
+  registerTarget,
+  onboardingTargetId,
+  onItemOpen,
+}: Props) {
   const [sortOrder, setSortOrder] = useState<SortOrder>('latest')
   const [openId, setOpenId] = useState<string | null>(null)
 
@@ -59,7 +68,12 @@ export default function CompletedScreen({ todos, onDelete }: Props) {
             return (
               <div key={todo.id}>
                 <button
-                  onClick={() => setOpenId(isOpen ? null : todo.id)}
+                  ref={todo.id === onboardingTargetId ? registerTarget?.('completedItem') : undefined}
+                  onClick={() => {
+                    const nextOpen = isOpen ? null : todo.id
+                    setOpenId(nextOpen)
+                    if (nextOpen) onItemOpen?.(nextOpen)
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                 >
                   <span>{meta.emoji}</span>

@@ -4,12 +4,13 @@ import { PRIORITY_META } from '../types'
 
 interface Props {
   todos: Todo[]
+  registerTarget?: (key: string) => (el: HTMLElement | null) => void
 }
 
 const DAYS_KR = ['일', '월', '화', '수', '목', '금', '토']
 const MONTHS_KR = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월']
 
-export default function CalendarScreen({ todos }: Props) {
+export default function CalendarScreen({ todos, registerTarget }: Props) {
   const now = new Date()
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth())
@@ -95,7 +96,11 @@ export default function CalendarScreen({ todos }: Props) {
             const isSat = idx % 7 === 6
 
             return (
-              <div key={dateStr} className={`min-h-[52px] rounded-xl p-1 ${isToday ? 'bg-blue-50' : ''}`}>
+              <div
+                key={dateStr}
+                ref={isToday ? registerTarget?.('todayCell') : undefined}
+                className={`min-h-[52px] rounded-xl p-1 ${isToday ? 'bg-blue-50' : ''}`}
+              >
                 <span
                   className={`text-xs font-medium block text-center mb-1 ${
                     isToday ? 'text-blue-500 font-bold' : isSun ? 'text-red-400' : isSat ? 'text-blue-400' : 'text-gray-700'
@@ -114,7 +119,10 @@ export default function CalendarScreen({ todos }: Props) {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl mt-4 shadow-sm border border-gray-100 divide-y divide-gray-50">
+      <div
+        ref={registerTarget?.('monthlyStats')}
+        className="bg-white rounded-2xl mt-4 shadow-sm border border-gray-100 divide-y divide-gray-50"
+      >
         <div className="flex items-center justify-between px-5 py-3.5">
           <span className="text-sm text-gray-500">이번 달 총 집중 시간</span>
           <span className="text-sm font-semibold text-gray-800">
