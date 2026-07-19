@@ -46,11 +46,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 max-w-md mx-auto">
-      <header className="bg-white border-b border-gray-100 px-5 py-4 flex items-center gap-2">
-        <span className="text-2xl">📚</span>
-        <h1 className="text-lg font-semibold text-gray-800">해빗 뽀모도로</h1>
-      </header>
-
       <main>
         {tab === 'calendar' && <CalendarScreen todos={todos} />}
         {tab === 'register' && <RegisterScreen onStart={handleStart} />}
