@@ -10,6 +10,8 @@ interface Props {
 }
 
 const PADDING = 8
+const BUBBLE_MARGIN = 14
+const EST_BUBBLE_HEIGHT = 96 // 말풍선 예상 높이(2~3줄 기준) — 화면 밖으로 안 나가게 클램프할 때 씀
 
 function useTargetRect(el: HTMLElement | null) {
   const [rect, setRect] = useState<DOMRect | null>(null)
@@ -58,18 +60,17 @@ export default function OnboardingOverlay({ targetEl, message, advance, onAdvanc
   const holeY = rect.top - PADDING
   const holeW = rect.width + PADDING * 2
   const holeH = rect.height + PADDING * 2
-  const vw = window.innerWidth
   const vh = window.innerHeight
 
-  // 말풍선을 hole 아래/위 중 공간이 더 넓은 쪽에 배치
+  // 말풍선을 hole 아래/위 중 공간이 더 넓은 쪽에 배치하고, 화면 밖으로 안 나가게 클램프
   const spaceBelow = vh - (holeY + holeH)
-  const placeBelow = spaceBelow > 140 || holeY < 140
-  const bubbleTop = placeBelow ? holeY + holeH + 14 : undefined
-  const bubbleBottom = placeBelow ? undefined : vh - holeY + 14
+  const placeBelow = spaceBelow > holeY
+  let bubbleTop = placeBelow ? holeY + holeH + BUBBLE_MARGIN : holeY - BUBBLE_MARGIN - EST_BUBBLE_HEIGHT
+  bubbleTop = Math.min(Math.max(bubbleTop, 12), Math.max(12, vh - EST_BUBBLE_HEIGHT - 12))
 
   return (
     <div className="fixed inset-0 z-[100]" aria-live="polite">
-      {/* 시각적 스포트라이트(구멍) — 클릭은 안 막음 */}
+      {/* 시각적 스포트라이트(구멍) — 클릭은 전부 실제 화면으로 통과시킴 */}
       <div
         className="absolute rounded-2xl pointer-events-none transition-all duration-200"
         style={{
@@ -83,47 +84,31 @@ export default function OnboardingOverlay({ targetEl, message, advance, onAdvanc
         }}
       />
 
-      {advance === 'anywhere' ? (
+      {advance === 'anywhere' && (
         // 어디를 눌러도 다음으로: 화면 전체를 클릭 레이어로
         <button
           aria-label="다음으로"
           onClick={onAdvance}
           className="absolute inset-0 w-full h-full cursor-pointer"
         />
-      ) : (
-        // 실제 타깃만 눌러야 진행: hole 부분만 뚫린 4개 밴드로 나머지를 막음
-        <>
-          <div className="absolute left-0 right-0" style={{ top: 0, height: Math.max(holeY, 0) }} />
-          <div
-            className="absolute left-0 right-0"
-            style={{ top: holeY + holeH, height: Math.max(vh - (holeY + holeH), 0) }}
-          />
-          <div
-            className="absolute"
-            style={{ left: 0, top: holeY, width: Math.max(holeX, 0), height: holeH }}
-          />
-          <div
-            className="absolute"
-            style={{ left: holeX + holeW, top: holeY, width: Math.max(vw - (holeX + holeW), 0), height: holeH }}
-          />
-        </>
       )}
+      {/* advance === 'target'일 땐 클릭을 막는 레이어를 아예 두지 않는다.
+          구멍 위치 계산이 기기마다 살짝 어긋나도 실제 버튼이 항상 눌리도록,
+          스포트라이트는 순수 시각 효과로만 두고 상호작용은 막지 않는다. */}
 
       {/* 말풍선 */}
       <div
-        className="absolute px-4"
-        style={{
-          left: 0,
-          right: 0,
-          top: bubbleTop,
-          bottom: bubbleBottom,
-          display: 'flex',
-          justifyContent: 'center',
-        }}
+        className="absolute left-0 right-0 flex justify-center px-4 pointer-events-none"
+        style={{ top: bubbleTop }}
       >
         <div
-          className="bg-gray-900 text-white text-sm font-medium rounded-2xl px-4 py-3 max-w-[280px] text-center shadow-xl pointer-events-none"
-          style={{ whiteSpace: 'pre-line' }}
+          className="bg-gray-900 text-white text-sm font-medium rounded-2xl px-4 py-3 text-center shadow-xl"
+          style={{
+            whiteSpace: 'pre-line',
+            wordBreak: 'keep-all',
+            overflowWrap: 'break-word',
+            maxWidth: 'min(320px, calc(100vw - 48px))',
+          }}
         >
           {message}
         </div>
