@@ -121,7 +121,10 @@ export default function OnboardingOverlay({ targetEl, message, advance, onAdvanc
           justifyContent: 'center',
         }}
       >
-        <div className="bg-gray-900 text-white text-sm font-medium rounded-2xl px-4 py-3 max-w-[280px] text-center shadow-xl pointer-events-none">
+        <div
+          className="bg-gray-900 text-white text-sm font-medium rounded-2xl px-4 py-3 max-w-[280px] text-center shadow-xl pointer-events-none"
+          style={{ whiteSpace: 'pre-line' }}
+        >
           {message}
         </div>
       </div>
