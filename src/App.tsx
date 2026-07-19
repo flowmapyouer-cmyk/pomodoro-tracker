@@ -57,10 +57,18 @@ function App() {
   const [onboardingStep, setOnboardingStep] = useState<number | null>(null)
   const [onboardingTodoId, setOnboardingTodoId] = useState<string | null>(null)
   const targetRefs = useRef<Record<string, HTMLElement | null>>({})
+  const targetRefCallbacks = useRef<Record<string, (el: HTMLElement | null) => void>>({})
   const [, bump] = useState(0)
-  const registerTarget = (key: string) => (el: HTMLElement | null) => {
-    targetRefs.current[key] = el
-    bump(v => v + 1)
+  // key마다 같은 함수 레퍼런스를 재사용해야 함 — 매 렌더마다 새 함수를 주면
+  // React가 ref를 계속 떼었다 붙였다 하면서 bump가 무한 반복된다
+  const registerTarget = (key: string) => {
+    if (!targetRefCallbacks.current[key]) {
+      targetRefCallbacks.current[key] = (el: HTMLElement | null) => {
+        targetRefs.current[key] = el
+        bump(v => v + 1)
+      }
+    }
+    return targetRefCallbacks.current[key]
   }
 
   // 처음 방문이면 온보딩 시작
