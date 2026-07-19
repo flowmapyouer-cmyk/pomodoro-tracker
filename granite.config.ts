@@ -11,6 +11,8 @@ export default defineConfig({
   },
   permissions: [],
   web: {
+    // 실기기로 개발 미리보기 테스트할 땐 이 host를 폰이 접근 가능한 노트북 LAN IP로 바꾸고
+    // dev 명령도 --host 0.0.0.0으로 바꿔야 함 (안드로이드 에뮬레이터에서만 10.0.2.2 사용)
     host: 'localhost',
     port: 5173,
     commands: {
