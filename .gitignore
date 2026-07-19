@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# 앱인토스 빌드 아티팩트/캐시 (ait build 결과물, 매번 새로 생성)
+*.ait
+.granite/
